@@ -9,7 +9,8 @@ services:
   - docker
 
 env:
-  - TOXENV=py35
+  - TOXENV=unit
+  - TOXENV=func
 
 before_install:
   - docker --version
