@@ -38,6 +38,11 @@ def delete_repository(context, name):
     assert r.status_code == 200
 
 
+@when('I check the repository listing')
+def list_repositories(context):
+    pass
+
+
 @then('I should see "{name}" in the repository listing')
 def repository_exists(context, name):
     listing = requests.get(context.gitmesh['list']).json()
