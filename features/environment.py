@@ -24,13 +24,11 @@ def before_all(context):
         'http://%s:8081/' % context.docker_host).json()
 
 
-def before_feature(context, feature):
+def before_scenario(context, scenario):
     """Cleanup the Git server."""
     listing = requests.get(context.gitmesh['list']).json()
     for repo in listing['repositories']:
-        print('deleting repo "%s".' % repo['name'])
         r = requests.delete(repo['delete'])
         assert r.status_code == 200
     listing = requests.get(context.gitmesh['list']).json()
-    print(listing)
     assert listing['repositories'] == []
