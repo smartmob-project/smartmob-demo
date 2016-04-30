@@ -1,0 +1,11 @@
+# -*- coding: utf-8 -*-
+
+gitmesh:
+  build: ./gitmesh/
+  ports:
+    - "8080:80"
+
+smartmob-agent:
+  build: ./smartmob-agent/
+  ports:
+    - "8081:80"
