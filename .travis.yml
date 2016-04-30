@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+
+language: python
+python:
+  - "3.5"
+
+sudo: required
+services:
+  - docker
+
+env:
+  - TOXENV=py35
+
+before_install:
+  - docker --version
+  - docker-compose --version
+  - echo $DOCKER_HOST
+  - docker-compose up -d
+
+install:
+  - pip install tox
+
+script:
+  - tox
