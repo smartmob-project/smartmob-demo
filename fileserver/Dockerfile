@@ -4,7 +4,7 @@ RUN apt-get update && apt-get -y install apache2 && apt-get clean
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_LOG_DIR /var/log/apache2
-COPY ./001-storage.conf /etc/apache2/sites-enabled/.
+COPY ./001-storage.conf /etc/apache2/sites-enabled/
 
 RUN mkdir /storage
 RUN chown www-data /storage
