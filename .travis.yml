@@ -23,3 +23,6 @@ install:
 
 script:
   - tox
+
+notifications:
+  slack: smartmob-team:qwt9rBlH1lynOHkB5p7ZsyjR

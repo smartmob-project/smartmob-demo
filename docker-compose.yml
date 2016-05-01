@@ -9,3 +9,8 @@ smartmob-agent:
   build: ./smartmob-agent/
   ports:
     - "8081:80"
+
+fileserver:
+  build: ./fileserver/
+  ports:
+    - "8082:80"
