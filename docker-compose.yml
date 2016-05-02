@@ -4,11 +4,16 @@ gitmesh:
   build: ./gitmesh/
   ports:
     - "8080:80"
+  links:
+    - smartmob-agent
+    - fileserver
 
 smartmob-agent:
   build: ./smartmob-agent/
   ports:
     - "8081:80"
+  links:
+    - fileserver
 
 fileserver:
   build: ./fileserver/

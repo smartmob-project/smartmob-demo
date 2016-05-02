@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
+import itertools
 import json
 import requests
 
 from behave import given, when, then
+from subprocess import check_output, CalledProcessError, STDOUT
 
 
 @given('There are no repositories')
@@ -19,6 +21,27 @@ def provision_repository(context, name):
         'name': name,
     }))
     assert r.status_code == 201
+
+
+@given('I clone repository "{name}"')
+def clone(context, name):
+    listing = requests.get(context.gitmesh['list']).json()
+    clone_urls = list(itertools.chain(*(
+        repo['clone'] for repo in listing['repositories']
+    )))
+    assert len(clone_urls) == 1
+    try:
+        output = check_output(
+            ['git', 'clone', clone_urls[0], '.'], stderr=STDOUT
+        )
+    except CalledProcessError as e:
+        output = e.output
+        raise
+    finally:
+        print(output)
+    check_output(['git', 'config', 'user.name', 'behave'])
+    check_output(['git', 'config', 'user.email', 'noreply@smartmob.org'])
+    check_output(['git', 'config', 'push.default', 'simple'])
 
 
 @when('I create a new "{name}" repository')
@@ -41,6 +64,11 @@ def delete_repository(context, name):
 @when('I check the repository listing')
 def list_repositories(context):
     pass
+
+
+@when('I push')
+def push(context):
+    check_output(['git', 'push'])
 
 
 @then('I should see "{name}" in the repository listing')
