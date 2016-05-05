@@ -2,12 +2,19 @@
 
 FROM python:3.5
 
-RUN pip install gitmesh==0.1.0
-RUN pip install aiohttp==0.21.5
-RUN pip install voluptuous==0.8.11
+# Install packages (from source).
+RUN git clone https://github.com/smartmob-project/gitmesh.git
+RUN git clone https://github.com/smartmob-project/gitmesh-deploy.git
+RUN pip install ./gitmesh
+RUN pip install ./gitmesh-deploy
 
-RUN mkdir /gitmesh
-WORKDIR /gitmesh
+# Configure gitmesh-deploy plug-in.
+ENV GITMESH_DEPLOY_STORAGE "http://fileserver/storage/"
+ENV GITMESH_DEPLOY_SMARTMOB_AGENT "http://smartmob-agent/"
+ENV GITMESH_DEPLOY_SMARTMOB_APP "myapp"
+
+RUN mkdir /gitmesh-repositories
+WORKDIR /gitmesh-repositories
 
 EXPOSE 80
 CMD python -m gitmesh serve --port=80
