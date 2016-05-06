@@ -29,3 +29,5 @@ async def test_fileserver_flow(DOCKER_IP, http_client):
     async with http_client.get('http://%s:8082/storage/file.json'
                                % DOCKER_IP) as resp:
         assert resp.status == 200
+        assert json.dumps(await resp.json()) == payload
+        print(await resp.json())
