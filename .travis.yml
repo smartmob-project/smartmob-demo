@@ -15,14 +15,23 @@ env:
 before_install:
   - docker --version
   - docker-compose --version
-  - echo $DOCKER_HOST
+  - docker-compose build
   - docker-compose up -d
+  - python ./logging/provision.py
 
 install:
   - pip install tox
 
 script:
   - tox
+
+after_failure:
+  - docker-compose logs fluentd
+  - docker-compose logs elasticsearch
+  - docker-compose logs kibana
+
+after_script:
+  - docker-compose down
 
 notifications:
   slack: smartmob-team:qwt9rBlH1lynOHkB5p7ZsyjR

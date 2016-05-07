@@ -1,21 +1,60 @@
 # -*- coding: utf-8 -*-
 
+# https://docs.docker.com/engine/admin/logging/fluentd/
+
+elasticsearch:
+  image: "elasticsearch:1.4"
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+
+kibana:
+  image: "kibana:4.1"
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch
+
+fluentd:
+  build: ./fluentd/
+  ports:
+    - "24224:24224"
+    - "8888:8888"
+  links:
+    - elasticsearch
+
 gitmesh:
   build: ./gitmesh/
   ports:
     - "8080:80"
   links:
+    - fluentd
     - smartmob-agent
     - fileserver
+  log_driver: "fluentd"
+  log_opt:
+    fluentd-address: "127.0.0.1:24224"
+    tag: "docker.{{.Name}}"
 
 smartmob-agent:
   build: ./smartmob-agent/
   ports:
     - "8081:80"
   links:
+    - fluentd
     - fileserver
+  log_driver: "fluentd"
+  log_opt:
+    fluentd-address: "127.0.0.1:24224"
+    tag: "docker.{{.Name}}"
 
 fileserver:
   build: ./fileserver/
   ports:
     - "8082:80"
+  links:
+    - fluentd
+  log_driver: "fluentd"
+  log_opt:
+    fluentd-address: "127.0.0.1:24224"
+    tag: "docker.{{.Name}}"

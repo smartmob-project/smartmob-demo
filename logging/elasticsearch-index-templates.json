@@ -1,0 +1,33 @@
+{
+    "template": "docker-*",
+    "mappings": {
+        "_default_": {
+            "properties": {
+                "@timestamp": {
+                    "type": "date",
+                    "index": "not_analyzed"
+                }
+            }
+        },
+        "docker": {
+            "properties": {
+                "container_name": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "source": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "log": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "container_id": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                }
+            }
+        }
+    }
+}
