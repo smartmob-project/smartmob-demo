@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+
+# TODO: replace by simple Python service to get structured logs & faster
+#       builds.
+
 FROM debian:stable
 
 RUN apt-get update && apt-get -y install apache2 && apt-get clean
