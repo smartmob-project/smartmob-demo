@@ -31,6 +31,8 @@ gitmesh:
     - fluentd
     - smartmob-agent
     - fileserver
+  environment:
+    GITMESH_LOGGING_ENDPOINT: "fluent://fluentd:24224/events.{{.Name}}"
   log_driver: "fluentd"
   log_opt:
     fluentd-address: "127.0.0.1:24224"
@@ -43,6 +45,8 @@ smartmob-agent:
   links:
     - fluentd
     - fileserver
+  environment:
+    SMARTMOB_LOGGING_ENDPOINT: "fluent://fluentd:24224/events.{{.Name}}"
   log_driver: "fluentd"
   log_opt:
     fluentd-address: "127.0.0.1:24224"

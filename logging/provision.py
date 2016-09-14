@@ -85,21 +85,41 @@ def provision(elasticsearch_url, clock=timeit.default_timer, timeout=30.0):
             # cannot portably test for ``errno.ECONNREFUSED``...
             time.sleep(1.0)
 
-    # Upload ElasticSearch index templates.
+    # Upload ElasticSearch index templates (1 of 2).
     req = Request(
         url=urljoin(elasticsearch_url, '_template/docker'),
         data=readfile(
-            os.path.join(here, 'elasticsearch-index-templates.json')
+            os.path.join(here, 'elasticsearch-index-template-docker.json')
         ),
     )
     with autoclose(urlopen(req)) as rep:
         check_status(req, rep, {200, 201})
 
-    # Upload Kibana index patterns.
+    # Upload ElasticSearch index templates (2 of 2).
+    req = Request(
+        url=urljoin(elasticsearch_url, '_template/events'),
+        data=readfile(
+            os.path.join(here, 'elasticsearch-index-template-events.json')
+        ),
+    )
+    with autoclose(urlopen(req)) as rep:
+        check_status(req, rep, {200, 201})
+
+    # Upload Kibana index patterns (1 of 2).
     req = Request(
         url=urljoin(elasticsearch_url, '.kibana/index-pattern/docker-*'),
         data=readfile(
-            os.path.join(here, 'kibana-index-patterns.json')
+            os.path.join(here, 'kibana-index-pattern-docker.json')
+        ),
+    )
+    with autoclose(urlopen(req)) as rep:
+        check_status(req, rep, {200, 201})
+
+    # Upload Kibana index patterns (2 of 2).
+    req = Request(
+        url=urljoin(elasticsearch_url, '.kibana/index-pattern/events-*'),
+        data=readfile(
+            os.path.join(here, 'kibana-index-pattern-events.json')
         ),
     )
     with autoclose(urlopen(req)) as rep:
