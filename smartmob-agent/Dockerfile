@@ -2,7 +2,8 @@
 
 FROM python:3.5
 
-RUN pip install smartmob-agent==0.3.0
+RUN git clone https://github.com/smartmob-project/smartmob-agent.git
+RUN pip install ./smartmob-agent
 
 EXPOSE 80
 

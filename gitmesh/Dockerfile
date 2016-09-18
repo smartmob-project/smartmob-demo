@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+# Docker compose file should provide:
+# - GITMESH_LOGGIN_ENDPOINT
+
 FROM python:3.5
 
 # Install packages (from source).
 RUN git clone https://github.com/smartmob-project/gitmesh.git
-RUN git clone https://github.com/smartmob-project/gitmesh-deploy.git
 RUN pip install ./gitmesh
+RUN git clone https://github.com/smartmob-project/gitmesh-deploy.git
 RUN pip install ./gitmesh-deploy
 
 # Configure gitmesh-deploy plug-in.
