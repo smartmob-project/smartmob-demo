@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# TODO: replace by simple Python service to get structured logs & faster
-#       builds.
+# Docker compose file should provide:
+# - SMARTMOB_LOGGING_ENDPOINT
 
-FROM debian:stable
+FROM python:3.5
 
-RUN apt-get update && apt-get -y install apache2 && apt-get clean
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOG_DIR /var/log/apache2
-COPY ./001-storage.conf /etc/apache2/sites-enabled/
-
-RUN mkdir /storage
-RUN chown www-data /storage
-
-RUN /usr/sbin/a2enmod dav
-RUN /usr/sbin/a2enmod dav_fs
+# Install packages (from source).
+RUN git clone https://github.com/smartmob-project/smartmob-filestore.git
+RUN pip install ./smartmob-filestore
 
 EXPOSE 80
 
-CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+CMD python -m smartmob_filestore --port=80
