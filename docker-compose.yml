@@ -58,6 +58,8 @@ fileserver:
     - "8082:80"
   links:
     - fluentd
+  environment:
+    SMARTMOB_LOGGING_ENDPOINT: "fluent://fluentd:24224/events.smartmob-filestore"
   log_driver: "fluentd"
   log_opt:
     fluentd-address: "127.0.0.1:24224"
