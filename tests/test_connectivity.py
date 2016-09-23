@@ -119,6 +119,77 @@ async def test_elasticsearch_docker_index(DOCKER_IP, http_client):
 
 
 @pytest.mark.asyncio
+async def test_elasticsearch_docker_index_auto_string(DOCKER_IP, http_client):
+    """ElasticSearch indexes are functionnal."""
+
+    # Grab the current date (we'll need to use it several times and we don't
+    # want to get flakey results when we execute the tests around midnight).
+    today = datetime.date.today()
+
+    # Clear the index.
+    url = 'http://%s:9200/docker-%s' % (
+        DOCKER_IP,
+        today.isoformat(),
+    )
+    async with http_client.delete(url) as resp:
+        # May get 404 if we're the first test to run, but we'll get 200 if we
+        # successfully delete the index.
+        assert resp.status in (200, 404)
+
+    # Post an event with `_type=docker`.
+    url = 'http://%s:9200/docker-%s/docker' % (
+        DOCKER_IP,
+        today.isoformat(),
+    )
+    body = json.dumps({
+        'container_name': 'a-container-name',
+        'container_id': 'a-container-id',
+        'source': 'stdout',
+        'log': 'Hello, world!',
+        # This field does not have an explicit type mapping.
+        'dynamic_field': 123,
+    })
+    async with http_client.post(url, data=body) as resp:
+        assert resp.status == 201
+        body = await resp.text()
+
+    # Wait until the record shows up in search results.
+    await asyncio.sleep(datetime.timedelta(seconds=1).total_seconds())
+
+    # Check the assigned type in the index (the template is not affected).
+    url = 'http://%s:9200/docker-%04d-%02d-%02d' % (
+        DOCKER_IP, today.year, today.month, today.day,
+    )
+    async with http_client.get(url) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    mappings = body['docker-%04d-%02d-%02d' % (
+        today.year, today.month, today.day,
+    )]['mappings']
+    fields = mappings['_default_']['properties']
+    assert '@timestamp' in fields
+    fields = mappings['docker']['properties']
+    assert fields['dynamic_field']['type'] == 'string'
+
+    # Grab the record.
+    url = 'http://%s:9200/docker-%04d-%02d-%02d/docker/_search' % (
+        DOCKER_IP, today.year, today.month, today.day,
+    )
+    async with http_client.get(url) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body['hits']['total'] == 1
+    assert body['hits']['hits'][0]['_source'] == {
+        'container_name': 'a-container-name',
+        'container_id': 'a-container-id',
+        'source': 'stdout',
+        'log': 'Hello, world!',
+        # TODO: figure out why this is a number!
+        'dynamic_field': 123,
+    }
+
+
+@pytest.mark.asyncio
 async def test_elasticsearch_events_index(DOCKER_IP, http_client):
     """ElasticSearch indexes are functionnal."""
 
@@ -182,6 +253,73 @@ async def test_elasticsearch_events_index(DOCKER_IP, http_client):
         'events-%04d-%02d-%02d' % (today.year, today.month, today.day)
     )
     assert int(index['docs.count']) == 1
+
+
+@pytest.mark.asyncio
+async def test_elasticsearch_events_index_auto_string(DOCKER_IP, http_client):
+    """ElasticSearch indexes are functionnal."""
+
+    # Grab the current date (we'll need to use it several times and we don't
+    # want to get flakey results when we execute the tests around midnight).
+    today = datetime.date.today()
+
+    # Clear the index.
+    url = 'http://%s:9200/events-%s' % (
+        DOCKER_IP,
+        today.isoformat(),
+    )
+    async with http_client.delete(url) as resp:
+        # May get 404 if we're the first test to run, but we'll get 200 if we
+        # successfully delete the index.
+        assert resp.status in (200, 404)
+
+    # Post an event with `_type=events`.
+    url = 'http://%s:9200/events-%s/events' % (
+        DOCKER_IP,
+        today.isoformat(),
+    )
+    body = json.dumps({
+        'service': 'a-service',
+        'event': 'an-event',
+        # This field does not have an explicit type mapping.
+        'dynamic_field': 123,
+    })
+    async with http_client.post(url, data=body) as resp:
+        assert resp.status == 201
+        body = await resp.text()
+
+    # Wait until the record shows up in search results.
+    await asyncio.sleep(datetime.timedelta(seconds=1).total_seconds())
+
+    # Check the assigned type in the index (the template is not affected).
+    url = 'http://%s:9200/events-%04d-%02d-%02d' % (
+        DOCKER_IP, today.year, today.month, today.day,
+    )
+    async with http_client.get(url) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    mappings = body['events-%04d-%02d-%02d' % (
+        today.year, today.month, today.day,
+    )]['mappings']
+    fields = mappings['_default_']['properties']
+    assert '@timestamp' in fields
+    fields = mappings['events']['properties']
+    assert fields['dynamic_field']['type'] == 'string'
+
+    # Grab the record.
+    url = 'http://%s:9200/events-%04d-%02d-%02d/events/_search' % (
+        DOCKER_IP, today.year, today.month, today.day,
+    )
+    async with http_client.get(url) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body['hits']['total'] == 1
+    assert body['hits']['hits'][0]['_source'] == {
+        'service': 'a-service',
+        'event': 'an-event',
+        # TODO: figure out why this is a number!
+        'dynamic_field': 123,
+    }
 
 
 @pytest.mark.asyncio
