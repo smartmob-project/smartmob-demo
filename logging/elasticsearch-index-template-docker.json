@@ -2,6 +2,19 @@
     "template": "docker-*",
     "mappings": {
         "_default_": {
+            "dynamic_templates": [
+                {
+                    "auto_string": {
+                        "match": "*",
+                        "match_mapping_type": "*",
+                        "mapping": {
+                            "index": "not_analyzed",
+                            "omit_norms": true,
+                            "type": "string"
+                        }
+                    }
+                }
+            ],
             "properties": {
                 "@timestamp": {
                     "type": "date",
