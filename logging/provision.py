@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+from __future__ import print_function
+
 import errno
 import os
 import os.path
@@ -26,6 +28,8 @@ except ImportError:
             yield x
         finally:
             x.close()
+    class ConnectionResetError(Exception):
+        pass
 
 
 here = os.path.dirname(os.path.abspath(__file__))
@@ -66,6 +70,8 @@ def check_status(req, rep, status_codes={200, 201}):
 
 def provision(elasticsearch_url, clock=timeit.default_timer, timeout=30.0):
     """Upload logging configurations to ElasticSearch."""
+
+    print('URL:', elasticsearch_url)
 
     # Wait until ElasticSearch is responsive.
     #
